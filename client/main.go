@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 )
 
@@ -11,5 +12,14 @@ func main() {
 	}
 	defer connection.Close()
 
-	connection.Write([]byte("Я клиент!\n"))
+	for {
+		scanned := ""
+
+		fmt.Scanln(&scanned)
+
+		_, err = connection.Write([]byte(scanned + "\n"))
+		if err != nil {
+			panic(err.Error())
+		}
+	}
 }

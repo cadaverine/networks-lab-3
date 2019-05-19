@@ -29,10 +29,14 @@ func main() {
 func handleConnection(connection net.Conn) {
 	defer connection.Close()
 
-	message, err := bufio.NewReader(connection).ReadString('\n')
-	if err != nil {
-		panic(err.Error())
-	}
+	address := connection.RemoteAddr()
 
-	fmt.Println("Сообщение от клиента: ", message)
+	for {
+		message, err := bufio.NewReader(connection).ReadString('\n')
+		if err != nil {
+			panic(err.Error())
+		}
+
+		fmt.Println("Клиент("+address.String()+"): ", message)
+	}
 }
