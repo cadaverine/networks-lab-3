@@ -1,9 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"io"
+	"log"
 	"net"
+	"os"
+	"strconv"
 )
 
 func main() {
@@ -16,27 +19,32 @@ func main() {
 
 	fmt.Println("Listening on 127.0.0.1:8081...")
 
+	connectionsNum := 0
+
 	for {
 		connection, err := listener.Accept()
 		if err != nil {
 			panic(err.Error())
 		}
 
-		go handleConnection(connection)
+		connectionsNum++
+		fmt.Println("New connection. Id: ", connectionsNum)
+
+		fileName := "test-file-" + strconv.Itoa(connectionsNum) + ".txt"
+
+		go handleConnection(connection, fileName)
 	}
 }
 
-func handleConnection(connection net.Conn) {
+func handleConnection(connection net.Conn, fileName string) {
 	defer connection.Close()
 
-	address := connection.RemoteAddr()
-
-	for {
-		message, err := bufio.NewReader(connection).ReadString('\n')
-		if err != nil {
-			panic(err.Error())
-		}
-
-		fmt.Println("Клиент("+address.String()+"): ", message)
+	file, err := os.Create(fileName)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	defer file.Close()
+
+	io.Copy(file, connection)
 }
