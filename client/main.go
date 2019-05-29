@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net"
 )
 
@@ -13,13 +16,18 @@ func main() {
 	defer connection.Close()
 
 	for {
-		scanned := ""
+		filePath := ""
 
-		fmt.Scanln(&scanned)
+		fmt.Print("Set the path of file to be send: ")
+		fmt.Scanln(&filePath)
 
-		_, err = connection.Write([]byte(scanned + "\n"))
+		binary, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			panic(err.Error())
 		}
+
+		fmt.Println("Send file to server: ", filePath)
+
+		io.Copy(connection, bytes.NewReader(binary))
 	}
 }
